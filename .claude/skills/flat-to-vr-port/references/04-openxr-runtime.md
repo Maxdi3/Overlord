@@ -18,9 +18,14 @@ namespace d3d11 {
   subscribe_resize_before(fn);
 }
 ```
-- Replace `D3D11CreateDevice` through the import resolver. Record the adapter, and
-  enable `ID3D11Multithread::SetMultithreadProtected(TRUE)` (Overlord records whether
-  this succeeded).
+- Replace `D3D11CreateDevice` through the import resolver and record the adapter.
+  Overlord only *queries* `ID3D11Multithread::GetMultithreadProtected` and leaves
+  the game's device contract unchanged. Forcing global immediate-context
+  serialization changed every game/Present call and still reproduced the same
+  kernel wait-packet failure (`d3d11.cpp` ~1823). Put your GPU work on the actual
+  renderer/Present owner thread instead of relying on multithread protection.
+- Replace `CreateDXGIFactory` with `CreateDXGIFactory1` because OpenVR requires a
+  DXGI 1.1 factory lineage.
 - Swapchain hook: get the Present (slot 8) and ResizeBuffers (slot 13) pointers
   from a dummy swapchain, then detour them. Track "inside callback" state so
   shutdown can wait.
