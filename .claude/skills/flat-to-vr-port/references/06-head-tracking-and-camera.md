@@ -95,8 +95,12 @@ Rules:
 
 ## 5. Things that must be disabled or adapted in VR
 
-- Camera bob, view kick, weapon sway, view shake → off or reduced
-  (`camera_bob.cpp` hooks four sites). Keep native recoil only on the *weapon*.
+- Camera bob, view kick, weapon sway, view shake → off or reduced. Overlord's
+  `vr_cameraBob` (default on) scopes one policy to **seven** local camera call
+  sites with thread-local state. This covers positional bob plus the ADS
+  angular-bob kernels. It never overwrites native dvars, and other consumers of
+  the same routines keep their results (`docs/vr-camera-bob.md`). Keep native
+  recoil only on the *weapon*.
 - Scripted FOV changes (zoom) must not change the HMD projection. Optics are rendered
   separately (`docs/vr-native-ads.md`).
 - Death/third-person cameras: fade, or present with a policy.
